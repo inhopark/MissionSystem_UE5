@@ -1,7 +1,3 @@
-# Claude Code
-.claude/
-CLAUDE.md
-
 # Local dev tooling / editor state (machine-specific, not shared)
 .mcp.json
 .vscode/
