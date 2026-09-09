@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
@@ -14,6 +14,13 @@ class UInputAction;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
+
+UENUM(BlueprintType)
+enum class ECharacterPlayMode : uint8
+{
+	Normal,        // 일반 3인칭 자유 이동 모드
+	DefenseMode    // 쿼터뷰 디펜스 미니게임 모드
+};
 
 UCLASS(config=Game)
 class AMissionSystemCharacter : public ACharacter
@@ -54,6 +61,16 @@ protected:
 			
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PlayMode")
+	ECharacterPlayMode CurrentPlayMode = ECharacterPlayMode::Normal;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Defense")
+	float DefenseCameraDistance = 1300.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Defense")
+	float DefenseCameraForwardOffset = 450.0f;
+
+	virtual void Tick(float DeltaTime) override;
 
 	virtual void NotifyControllerChanged() override;
 
@@ -65,6 +82,8 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	void SetPlayMode(ECharacterPlayMode NewMode);
+	FORCEINLINE ECharacterPlayMode GetPlayMode() const { return CurrentPlayMode; }
 
 public:
 	AMissionSystemCharacter();

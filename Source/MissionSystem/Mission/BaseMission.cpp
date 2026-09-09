@@ -1,4 +1,4 @@
-#include "BaseMission.h"
+ï»¿#include "BaseMission.h"
 
 UBaseMission::UBaseMission()
 {
@@ -37,7 +37,7 @@ void UBaseMission::EnterCompletedState()
 
 void UBaseMission::AgreeMission()
 {
-	// ¹Ì¼Ç ÁøÇà ÁßÀ¸·Î º¯°æ.
+	// ë¯¸ì…˜ ì§„í–‰ ì¤‘ìœ¼ë¡œ ë³€ê²½.
 	SetState(EMissionState::InProgress);
 }
 

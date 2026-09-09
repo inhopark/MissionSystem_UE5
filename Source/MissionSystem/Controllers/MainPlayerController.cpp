@@ -1,4 +1,4 @@
-#include "MainPlayerController.h"
+ï»¿#include "MainPlayerController.h"
 #include "Manager/MissionManager.h" 
 #include "UMG/MainMissionWidget.h"
 #include "Kismet/GameplayStatics.h"
@@ -7,18 +7,24 @@ void AMainPlayerController::BeginPlay()
 {
     Super::BeginPlay();
 
-    UClass* pMainMissionWidgetClass = LoadClass<UMainMissionWidget>(nullptr, TEXT("/Game/UMG/WBP_MainMission.WBP_MainMission_C"));
-    if (pMainMissionWidgetClass)
+    TSubclassOf<UMainMissionWidget> WidgetClassToUse = MainMissionWidgetClass;
+    if (WidgetClassToUse == nullptr)
     {
-        MainMissionWidgetInstance = CreateWidget<UMainMissionWidget>(this, pMainMissionWidgetClass);
+        // ì—ë””í„°/ë¸”ë£¨í”„ë¦°íŠ¸ì—ì„œ ë¯¸ì§€ì • ì‹œ ê¸°ì¡´ ì—ì…‹ ê²½ë¡œë¡œ Fallback ë¡œë“œ
+        WidgetClassToUse = LoadClass<UMainMissionWidget>(nullptr, TEXT("/Game/UMG/WBP_MainMission.WBP_MainMission_C"));
+    }
 
-        if (MainMissionWidgetInstance)
+    if (WidgetClassToUse != nullptr)
+    {
+        MainMissionWidgetInstance = CreateWidget<UMainMissionWidget>(this, WidgetClassToUse);
+
+        if (MainMissionWidgetInstance != nullptr)
         {
-            // Ã³À½¿£ ¾È º¸ÀÌ°Ô ÇÒ ¼öµµ ÀÖÀ½
+            // ì²˜ìŒì—” ì•ˆ ë³´ì´ê²Œ ì„¤ì • í›„ ë·°í¬íŠ¸ì— ì¶”ê°€
             MainMissionWidgetInstance->AddToViewport();
             MainMissionWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
 
-            // Subsystem¿¡ µî·Ï
+            // Subsystemì— ë“±ë¡
             if (UMissionManager* pMissionManager = GetGameInstance()->GetSubsystem<UMissionManager>())
             {
                 pMissionManager->RegisterMainMissionWidget(MainMissionWidgetInstance);

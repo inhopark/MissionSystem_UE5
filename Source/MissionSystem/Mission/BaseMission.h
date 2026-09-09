@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Define/MissionDefine.h"
@@ -34,7 +34,7 @@ protected:
 
 public:
 
-	EMissionState GetMissionState() { return MissionState; }
+	FORCEINLINE EMissionState GetMissionState() const { return MissionState; }
 
 public:
 

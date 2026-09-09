@@ -1,4 +1,4 @@
-#include "NPC.h"
+ï»¿#include "NPC.h"
 #include "Character/User/MissionSystemCharacter.h"
 #include "Components/SphereComponent.h"
 #include "Manager/MissionManager.h"
@@ -25,12 +25,12 @@ void ANPC::OnUserCheckOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 {
 	if (AMissionSystemCharacter* pUser = Cast<AMissionSystemCharacter>(OtherActor))
 	{
-		// ¹Ì¼Ç ¿äÃ» UI ¶ç¿ì´Â ·ÎÁ÷.
-		if(GetGameInstance())
+		// ë¯¸ì…˜ ìš”ì²­ UI ë„ìš°ëŠ” ë¡œì§.
+		if(GetGameInstance() != nullptr)
 		{
 			if (UMissionManager* pMissionManager = GetGameInstance()->GetSubsystem<UMissionManager>())
 			{
-				pMissionManager->ShowMainMissionWidget(MissionUnique);
+				pMissionManager->ShowMainMissionWidget(MissionUnique, this);
 			}
 		}
 	}
@@ -40,12 +40,12 @@ void ANPC::OnUserCheckOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActo
 {
 	if (AMissionSystemCharacter* pUser = Cast<AMissionSystemCharacter>(OtherActor))
 	{
-		// ¹Ì¼Ç ¿äÃ» UI Á¦°ÅÇÏ´Â ·ÎÁ÷.
+		// ë¯¸ì…˜ ìš”ì²­ UI ì œê±°í•˜ëŠ” ë¡œì§.
 		if(GetGameInstance())
 		{
 			if (UMissionManager* pMissionManager = GetGameInstance()->GetSubsystem<UMissionManager>())
 			{
-				pMissionManager->HIdeMainMissionWidget();
+				pMissionManager->HideMainMissionWidget();
 			}
 		}
 	}

@@ -1,0 +1,44 @@
+# Claude Code
+.claude/
+CLAUDE.md
+
+# Local dev tooling / editor state (machine-specific, not shared)
+.mcp.json
+.vscode/
+enc_temp_folder/
+
+# Visual Studio / Rider
+.vs/
+.vsconfig.user
+*.sln.docstates
+*.suo
+*.user
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.VC.opendb
+
+# Unreal Engine intermediate / generated
+Binaries/
+Build/
+DerivedDataCache/
+Intermediate/
+Saved/
+.idea/
+
+# Generated project files (regenerate via "Generate Visual Studio project files")
+*.sln
+*.slnx
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.xcworkspace
+*.xcodeproj
+
+# Compiled source
+*.pdb
+*.exp
+*.lib
+*.exe
+*.dll
+*.patch_*

@@ -1,6 +1,9 @@
-#include "MissionManager.h"
+ï»¿#include "MissionManager.h"
 #include "Factory/MissionFactory.h"
-#include "UMG/MainMissionWIdget.h"
+#include "UMG/MainMissionWidget.h"
+#include "Character/User/MissionSystemCharacter.h"
+#include "Character/NPC/NPC.h"
+#include "Spawner/MonsterSpawner.h"
 
 void UMissionManager::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -11,23 +14,23 @@ void UMissionManager::Initialize(FSubsystemCollectionBase& Collection)
 
 void UMissionManager::RequestMission(EMissionUnique eMissionUnique)
 {
-    // ¹Ì¼ÇÁøÇà ÁßÀÏ°æ¿ì ½ÇÆÐ.
+    // ë¯¸ì…˜ì§„í–‰ ì¤‘ì¼ê²½ìš° ì‹¤íŒ¨.
     if(IsMissionRequest() == false)
     {
         UE_LOG(LogTemp, Log, TEXT("## MissionManager::RequestMission ## Mission is already in progress. Cannot request a new mission."));
         return;
 	}
 
-    // ¹Ì¼Ç ÁøÇà 
+    // ë¯¸ì…˜ ì§„í–‰ 
     if (MissionFactory != nullptr)
     {
         CurrentMission = MissionFactory->CreateMission(this, eMissionUnique);
         if (CurrentMission != nullptr)
         {
-			// ¹Ì¼Ç »óÅÂ º¯°æ ÀÌº¥Æ® ¹ÙÀÎµù
+			// ë¯¸ì…˜ ìƒíƒœ ë³€ê²½ ì´ë²¤íŠ¸ ë°”ì¸ë”©
             CurrentMission->OnMissionStateChanged.AddDynamic(this, &UMissionManager::OnMissionStateChanged);
 
-			// ¹Ì¼Ç ÃÊ±âÈ­
+			// ë¯¸ì…˜ ì´ˆê¸°í™”
             CurrentMission->Initialize();
         }
     }
@@ -39,7 +42,7 @@ void UMissionManager::RequestMission(EMissionUnique eMissionUnique)
 
 bool UMissionManager::IsMissionRequest()
 {
-    // ÀÌ °÷¿¡ ÃßÈÄ ¹Ì¼Ç ¿äÃ» °¡´ÉÇÑ Á¶°Ç Ãß°¡ ¿¹Á¤.
+    // ì´ ê³³ì— ì¶”í›„ ë¯¸ì…˜ ìš”ì²­ ê°€ëŠ¥í•œ ì¡°ê±´ ì¶”ê°€ ì˜ˆì •.
     return CurrentMission == nullptr;
 }
 
@@ -47,14 +50,14 @@ void UMissionManager::RegisterMainMissionWidget(UMainMissionWidget* Widget)
 {
     MainMissionWidget = Widget;
 
-    // ¹öÆ° ÄÝ¹é ÇÔ¼ö µî·Ï.
+    // ë²„íŠ¼ ì½œë°± í•¨ìˆ˜ ë“±ë¡.
     if (MainMissionWidget != nullptr)
     {
         MainMissionWidget->OnMissionButtonAction.AddDynamic(this, &UMissionManager::HandleMissionButtonAction);
     }
 }
 
-void UMissionManager::ShowMainMissionWidget(EMissionUnique MissionUnique)
+void UMissionManager::ShowMainMissionWidget(EMissionUnique MissionUnique, ANPC* InNPC)
 {
     if (MainMissionWidget == nullptr)
     {
@@ -62,21 +65,32 @@ void UMissionManager::ShowMainMissionWidget(EMissionUnique MissionUnique)
         return;
     }
 
-    // ¸¶¿ì½º Ä¿¼­ ¸ðµå
+    // ì´ë¯¸ ë¯¸ì…˜ì´ ì§„í–‰ ì¤‘ì´ë©´ ëŒ€í™”ì°½ì„ ë„ìš°ì§€ ì•ŠìŒ
+    if (CurrentMission != nullptr)
+    {
+        if (CurrentMission->GetMissionState() == EMissionState::InProgress)
+        {
+            return;
+        }
+    }
+
+    CurrentMissionNPC = InNPC;
+
+    // ë§ˆìš°ìŠ¤ ì»¤ì„œ ëª¨ë“œ
     SetUICursorMode(true);
 
     MainMissionWidget->SetVisibility(ESlateVisibility::Visible);
 
-    // ÇöÀç ¹Ì¼Ç ÁøÇà Áß.
+    // í˜„ìž¬ ë¯¸ì…˜ ì§„í–‰ ì¤‘.
     if (CurrentMission == nullptr)
     {
 		RequestMission(MissionUnique);
     }
 }
 
-void UMissionManager::HIdeMainMissionWidget()
+void UMissionManager::HideMainMissionWidget()
 {
-    // ¸¶¿ì½º Ä¿¼­ ¸ðµå ÇØÁ¦
+    // ë§ˆìš°ìŠ¤ ì»¤ì„œ ëª¨ë“œ í•´ì œ
     SetUICursorMode(false);
 
     if (MainMissionWidget != nullptr)
@@ -90,11 +104,13 @@ void UMissionManager::SetUICursorMode(bool bShow)
     if (UWorld* World = GetWorld())
     {
         APlayerController* PC = World->GetFirstPlayerController();
-        if (PC)
+        if (PC != nullptr)
         {
             PC->bShowMouseCursor = bShow;
-
             PC->SetIgnoreLookInput(bShow);
+
+            // ë¯¸ì…˜ ì°½ ì—´ë¦´ ë•Œ(bShow == true) ì´ë™ ìž ê¸ˆ, ë‹«íž ë•Œ(bShow == false) ì´ë™ ìž¬ê°œ
+            PC->SetIgnoreMoveInput(bShow);
         }
 	}
 }
@@ -107,43 +123,55 @@ void UMissionManager::HandleMissionButtonAction(EMissionButtonAction Action)
             {
                 if (CurrentMission != nullptr)
                 {
-                    if(CurrentMission->GetMissionState() == EMissionState::Ready)
+                    if (CurrentMission->GetMissionState() == EMissionState::Ready)
                     {
-                        // ¹Ì¼Ç ½ÃÀÛ Ã³¸®
+                        // ë¯¸ì…˜ ì‹œìž‘ ì²˜ë¦¬
                         CurrentMission->AgreeMission();
-                    }
-                    else if(CurrentMission->GetMissionState() == EMissionState::InProgress)
-                    {
-                        // ¹Ì¼Ç ¼º°ø Ã³¸®.
-                        CurrentMission->SuccessMission();
 
-                        // ÀÏ´Ü ¹Ì¼Ç ÃÊ±âÈ­ ½ÃÅ´.
-                        ClearCurrentMission();
-					}
+                        // ë¯¸ì…˜ ì‹œìž‘ ì‹œ NPC í™”ë©´ì—ì„œ ì‚¬ë¼ì§€ê²Œ ì²˜ë¦¬ (ìˆ¨ê¹€ ë° ì¶©ëŒ ë„ê¸°)
+                        if (CurrentMissionNPC != nullptr)
+                        {
+                            CurrentMissionNPC->SetActorHiddenInGame(true);
+                            CurrentMissionNPC->SetActorEnableCollision(false);
+                        }
+
+                        // í”Œë ˆì´ì–´ ì¿¼í„°ë·° ë””íŽœìŠ¤ ëª¨ë“œë¡œ ì „í™˜
+                        if (UWorld* World = GetWorld())
+                        {
+                            if (APlayerController* PC = World->GetFirstPlayerController())
+                            {
+                                if (AMissionSystemCharacter* UserChar = Cast<AMissionSystemCharacter>(PC->GetPawn()))
+                                {
+                                    UserChar->SetPlayMode(ECharacterPlayMode::DefenseMode);
+
+                                    // ë””íŽœìŠ¤ ëª¨ë“œ ì§„ìž…: ìœ„ì—ì„œ ëª¬ìŠ¤í„°ê°€ ë‚´ë ¤ì˜¤ëŠ” ìŠ¤í° ì‹œìž‘
+                                    if (AMonsterSpawner* Spawner = GetOrCreateMonsterSpawner())
+                                    {
+                                        Spawner->StartSpawning(UserChar);
+                                    }
+                                }
+                            }
+                        }
+
+                        // ë¯¸ì…˜ ëŒ€í™”ì°½ ë‹«ê³  ë§ˆìš°ìŠ¤ ìˆ¨ê¸°ë©° ì´ë™(ì¢Œìš°) í™œì„±í™”
+                        HideMainMissionWidget();
+                    }
                 }
             }
 			break;
         case EMissionButtonAction::Right:
             {
-            if (CurrentMission != nullptr)
-            {
-                if (CurrentMission->GetMissionState() == EMissionState::Ready)
+                if (CurrentMission != nullptr)
                 {
-                    // ¹Ì¼Ç Ãë¼Ò Ã³¸®.
-                    CurrentMission->DisagreeMission();
+                    if (CurrentMission->GetMissionState() == EMissionState::Ready)
+                    {
+                        // ë¯¸ì…˜ ì·¨ì†Œ ì²˜ë¦¬.
+                        CurrentMission->DisagreeMission();
 
-                    // ÀÏ´Ü ¹Ì¼Ç ÃÊ±âÈ­ ½ÃÅ´.
-                    ClearCurrentMission();
+                        // ì¼ë‹¨ ë¯¸ì…˜ ì´ˆê¸°í™” ì‹œí‚´.
+                        ClearCurrentMission();
+                    }
                 }
-                else if (CurrentMission->GetMissionState() == EMissionState::InProgress)
-                {
-                    // ¹Ì¼Ç ½ÇÆÐ Ã³¸® 
-                    CurrentMission->FailedMission();
-
-                    // ÀÏ´Ü ¹Ì¼Ç ÃÊ±âÈ­ ½ÃÅ´.
-                    ClearCurrentMission();
-                }
-            }
             }
             break;
     }   
@@ -151,7 +179,7 @@ void UMissionManager::HandleMissionButtonAction(EMissionButtonAction Action)
 
 void UMissionManager::OnMissionStateChanged(EMissionState NewState)
 {
-    if (MainMissionWidget)
+    if (MainMissionWidget != nullptr)
     {
         MainMissionWidget->SetWidgetState(NewState);
     }
@@ -166,5 +194,44 @@ void UMissionManager::ClearCurrentMission()
         CurrentMission = nullptr;
     }
 
-	MainMissionWidget->SetVisibility(ESlateVisibility::Hidden);
+    // ë””íŽœìŠ¤ ëª¨ë“œ ì¢…ë£Œ: ëª¬ìŠ¤í„° ìŠ¤í° ì¤‘ë‹¨ ë° ìž”ì—¬ ëª¬ìŠ¤í„° ì •ë¦¬
+    if (MonsterSpawner != nullptr)
+    {
+        MonsterSpawner->StopSpawning();
+    }
+
+    // ë¯¸ì…˜ ì¢…ë£Œ ì‹œ ìˆ¨ê²¨ì¡Œë˜ NPC ë‹¤ì‹œ ë“±ìž¥
+    if (CurrentMissionNPC != nullptr)
+    {
+        CurrentMissionNPC->SetActorHiddenInGame(false);
+        CurrentMissionNPC->SetActorEnableCollision(true);
+        CurrentMissionNPC = nullptr;
+    }
+
+    // í”Œë ˆì´ì–´ ì›ëž˜ 3ì¸ì¹­ ëª¨ë“œë¡œ ë³µê·€
+    if (UWorld* World = GetWorld())
+    {
+        if (APlayerController* PC = World->GetFirstPlayerController())
+        {
+            if (AMissionSystemCharacter* UserChar = Cast<AMissionSystemCharacter>(PC->GetPawn()))
+            {
+                UserChar->SetPlayMode(ECharacterPlayMode::Normal);
+            }
+        }
+    }
+
+	HideMainMissionWidget();
+}
+
+AMonsterSpawner* UMissionManager::GetOrCreateMonsterSpawner()
+{
+    if (MonsterSpawner == nullptr)
+    {
+        if (UWorld* World = GetWorld())
+        {
+            MonsterSpawner = World->SpawnActor<AMonsterSpawner>();
+        }
+    }
+
+    return MonsterSpawner;
 }

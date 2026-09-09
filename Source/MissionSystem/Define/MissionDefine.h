@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "MissionDefine.generated.h"  
@@ -25,12 +25,16 @@ enum class EMissionButtonAction : uint8
 	Right
 };
 
-const FString WAIT_FOR_MISSION				= TEXT("Waiting for Mission");
-const FString MISSION_IN_PROGRESS			= TEXT("Mission in Progress");
-const FString MISSION_COMPLETED				= TEXT("Mission Completed");
-const FString MISSION_SUCCESS				= TEXT("Mission Success");
-const FString MISSION_FAILED                = TEXT("Mission Failed"); 
-const FString MISSION_SUCCESS_BUTTON_TEXT   = TEXT("Success");
-const FString MISSION_FAILED_BUTTON_TEXT    = TEXT("Fail");
-const FString MISSION_AGREE_BUTTON_TEXT     = TEXT("Agree");
-const FString MISSION_DISAGREE_BUTTON_TEXT  = TEXT("Disagree");
+#define LOCTEXT_NAMESPACE "MissionSystem"
+
+inline const FText WAIT_FOR_MISSION				= LOCTEXT("WaitForMission", "Waiting for Mission");
+inline const FText MISSION_IN_PROGRESS			= LOCTEXT("MissionInProgress", "Mission in Progress");
+inline const FText MISSION_COMPLETED			= LOCTEXT("MissionCompleted", "Mission Completed");
+inline const FText MISSION_SUCCESS				= LOCTEXT("MissionSuccess", "Mission Success");
+inline const FText MISSION_FAILED                = LOCTEXT("MissionFailed", "Mission Failed"); 
+inline const FText MISSION_SUCCESS_BUTTON_TEXT   = LOCTEXT("MissionSuccessButton", "Success");
+inline const FText MISSION_FAILED_BUTTON_TEXT    = LOCTEXT("MissionFailButton", "Fail");
+inline const FText MISSION_AGREE_BUTTON_TEXT     = LOCTEXT("MissionAgreeButton", "Agree");
+inline const FText MISSION_DISAGREE_BUTTON_TEXT  = LOCTEXT("MissionDisagreeButton", "Disagree");
+
+#undef LOCTEXT_NAMESPACE

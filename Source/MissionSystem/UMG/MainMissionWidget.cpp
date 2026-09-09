@@ -1,4 +1,4 @@
-#include "MainMissionWidget.h"
+ï»¿#include "MainMissionWidget.h"
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
 
@@ -40,7 +40,7 @@ void UMainMissionWidget::SetWidgetState(EMissionState MissionState)
             break;
     }
 
-    // ¹öÆ° º¸¿©ÁúÁö ¼±ÅÃ.
+    // ë²„íŠ¼ ë³´ì—¬ì§ˆì§€ ì„ íƒ.
     bool bButtonVisible = MissionState != EMissionState::Completed;
     if (LeftButton)
     {
@@ -52,25 +52,25 @@ void UMainMissionWidget::SetWidgetState(EMissionState MissionState)
     }
 }
 
-void UMainMissionWidget::SetMissionTitle(const FString& NewTitle)
+void UMainMissionWidget::SetMissionTitle(const FText& NewTitle)
 {
     if (MissionTitleText)
     {
-        MissionTitleText->SetText(FText::FromString(NewTitle));
+        MissionTitleText->SetText(NewTitle);
     }
 }
 
-void UMainMissionWidget::SetButtonTexts(const FString& LeftText, const FString& RightText)
+void UMainMissionWidget::SetButtonTexts(const FText& LeftText, const FText& RightText)
 {
     if (LeftButtonTextBlock)
     {
 		LeftButtonTextBlock->SetVisibility(ESlateVisibility::Visible);
-        LeftButtonTextBlock->SetText(FText::FromString(LeftText));
+        LeftButtonTextBlock->SetText(LeftText);
     }
     if (RightButtonTextBlock)
     {
         RightButtonTextBlock->SetVisibility(ESlateVisibility::Visible);
-        RightButtonTextBlock->SetText(FText::FromString(RightText));
+        RightButtonTextBlock->SetText(RightText);
     }
 }
 

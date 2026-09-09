@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
@@ -21,6 +21,12 @@ private:
 	UPROPERTY()
 	class UMainMissionWidget* MainMissionWidget;
 
+	UPROPERTY()
+	class ANPC* CurrentMissionNPC;
+
+	UPROPERTY()
+	class AMonsterSpawner* MonsterSpawner;
+
 private:
 
 	bool IsMissionRequest();
@@ -31,6 +37,8 @@ private:
 
 	void ClearCurrentMission();
 
+	class AMonsterSpawner* GetOrCreateMonsterSpawner();
+
 public:
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -39,9 +47,9 @@ public:
 	
 	void RegisterMainMissionWidget(class UMainMissionWidget* Widget);
 
-	void ShowMainMissionWidget(EMissionUnique MissionUnique);
+	void ShowMainMissionWidget(EMissionUnique MissionUnique, class ANPC* InNPC = nullptr);
 
-	void HIdeMainMissionWidget();
+	void HideMainMissionWidget();
 
 	UFUNCTION()
 	void HandleMissionButtonAction(EMissionButtonAction Action);

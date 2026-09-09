@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
@@ -15,17 +15,17 @@ class MISSIONSYSTEM_API UMainMissionWidget : public UUserWidget
 protected:
 
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* MissionTitleText;  // ¹Ì¼Ç Á¦¸ñ ÅØ½ºÆ®
+	class UTextBlock* MissionTitleText;  // ë¯¸ì…˜ ì œëª© í…ìŠ¤íŠ¸
 
 	UPROPERTY(meta = (BindWidget))
-	class UButton* LeftButton;           // ¿ŞÂÊ ¹öÆ°
+	class UButton* LeftButton;           // ì™¼ìª½ ë²„íŠ¼
 	UPROPERTY(meta = (BindWidget))
-	class UButton* RightButton;          // ¿À¸¥ÂÊ ¹öÆ°
+	class UButton* RightButton;          // ì˜¤ë¥¸ìª½ ë²„íŠ¼
 
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* LeftButtonTextBlock;   // ¿ŞÂÊ ¹öÆ° ÅØ½ºÆ®
+	class UTextBlock* LeftButtonTextBlock;   // ì™¼ìª½ ë²„íŠ¼ í…ìŠ¤íŠ¸
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* RightButtonTextBlock;  // ¿À¸¥ÂÊ ¹öÆ° ÅØ½ºÆ®
+	class UTextBlock* RightButtonTextBlock;  // ì˜¤ë¥¸ìª½ ë²„íŠ¼ í…ìŠ¤íŠ¸
 
 public:
 
@@ -34,8 +34,8 @@ public:
 
 public:
 
-	void SetMissionTitle(const FString& NewTitle);  // ¹Ì¼Ç Á¦¸ñ ¼³Á¤
-	void SetButtonTexts(const FString& LeftText, const FString& RightText);  // ¹öÆ° ÅØ½ºÆ® ¼³Á¤
+	void SetMissionTitle(const FText& NewTitle);  // ë¯¸ì…˜ ì œëª© ì„¤ì •
+	void SetButtonTexts(const FText& LeftText, const FText& RightText);  // ë²„íŠ¼ í…ìŠ¤íŠ¸ ì„¤ì •
 	void SetWidgetState(EMissionState MissionState);
 
 	UFUNCTION()

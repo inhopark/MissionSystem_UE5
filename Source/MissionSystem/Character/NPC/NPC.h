@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
@@ -10,8 +10,9 @@ class MISSIONSYSTEM_API ANPC : public AActor
 {
 	GENERATED_BODY()
 
-private:
+protected:
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
 	EMissionUnique MissionUnique;
 
 protected:
@@ -28,5 +29,7 @@ private:
 
 public:
 	ANPC();
+
+	FORCEINLINE EMissionUnique GetMissionUnique() const { return MissionUnique; }
 
 };
