@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Manager/MissionManager.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -52,8 +53,10 @@ AMissionSystemCharacter::AMissionSystemCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
+	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character)
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	CurrentHP = MaxHP;
 }
 
 void AMissionSystemCharacter::Tick(float DeltaTime)
@@ -103,6 +106,31 @@ void AMissionSystemCharacter::SetPlayMode(ECharacterPlayMode NewMode)
 			GetCharacterMovement()->bOrientRotationToMovement = true;
 		}
 	}
+}
+
+void AMissionSystemCharacter::ApplyDamage(float DamageAmount)
+{
+	CurrentHP = FMath::Clamp(CurrentHP - DamageAmount, 0.0f, MaxHP);
+
+	OnHPChanged.Broadcast(CurrentHP, MaxHP);
+
+	if (CurrentHP <= 0.0f)
+	{
+		if (UGameInstance* GameInstance = GetGameInstance())
+		{
+			if (UMissionManager* pMissionManager = GameInstance->GetSubsystem<UMissionManager>())
+			{
+				pMissionManager->HandlePlayerDefeated();
+			}
+		}
+	}
+}
+
+void AMissionSystemCharacter::ResetHP()
+{
+	CurrentHP = MaxHP;
+
+	OnHPChanged.Broadcast(CurrentHP, MaxHP);
 }
 
 //////////////////////////////////////////////////////////////////////////

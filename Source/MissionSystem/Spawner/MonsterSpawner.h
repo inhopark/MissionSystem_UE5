@@ -27,7 +27,7 @@ protected:
 
 	// 스폰 간격(초)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Monster|Spawn")
-	float SpawnInterval = 1.5f;
+	float SpawnInterval = 0.5f;
 
 	// 플레이어 기준 전방(X) 스폰 거리 - 디펜스 카메라 시야 위쪽에서 나타나도록 설정
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Monster|Spawn")

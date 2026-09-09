@@ -30,7 +30,9 @@ protected:
 
 	virtual void EnterInProgressState();
 
-	virtual void EnterCompletedState();
+	virtual void EnterSucceededState();
+
+	virtual void EnterFailedState();
 
 public:
 

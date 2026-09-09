@@ -17,7 +17,8 @@ void UBaseMission::SetState(EMissionState NewState)
 	{
 		case EMissionState::Ready:      EnterReadyState(); break;
 		case EMissionState::InProgress: EnterInProgressState();  break;
-		case EMissionState::Completed:  EnterCompletedState();  break;
+		case EMissionState::Succeeded:  EnterSucceededState();  break;
+		case EMissionState::Failed:     EnterFailedState();  break;
 	}
 
 	OnMissionStateChanged.Broadcast(NewState);
@@ -31,7 +32,11 @@ void UBaseMission::EnterInProgressState()
 {
 }
 
-void UBaseMission::EnterCompletedState()
+void UBaseMission::EnterSucceededState()
+{
+}
+
+void UBaseMission::EnterFailedState()
 {
 }
 
@@ -47,10 +52,10 @@ void UBaseMission::DisagreeMission()
 
 void UBaseMission::SuccessMission()
 {
-	SetState(EMissionState::Completed);
+	SetState(EMissionState::Succeeded);
 }
 
 void UBaseMission::FailedMission()
 {
-	SetState(EMissionState::Completed);
+	SetState(EMissionState::Failed);
 }

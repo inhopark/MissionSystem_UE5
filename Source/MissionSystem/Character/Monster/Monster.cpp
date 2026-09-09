@@ -51,7 +51,8 @@ void AMonster::OnCollisionSphereBeginOverlap(UPrimitiveComponent* OverlappedComp
 {
 	if (AMissionSystemCharacter* pUser = Cast<AMissionSystemCharacter>(OtherActor))
 	{
-		// 플레이어와 충돌 시 처리(추후 피격/체력 로직 연결 지점)
+		pUser->ApplyDamage(DamageAmount);
+
 		Destroy();
 	}
 }
