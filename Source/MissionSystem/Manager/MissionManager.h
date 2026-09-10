@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
@@ -27,34 +27,18 @@ private:
 	UPROPERTY()
 	class ANPC* CurrentMissionNPC;
 
-	UPROPERTY()
-	class AMonsterSpawner* MonsterSpawner;
-
-	// 디펜스 미니게임에서 이 시간(초) 동안 생존하면 미션 성공 처리
-	UPROPERTY()
-	float MissionSuccessDuration = 30.0f;
-
-	FTimerHandle MissionSuccessTimerHandle;
-
 private:
 
 	bool IsMissionRequest();
 
 	void SetUICursorMode(bool bShow);
 
-	void RequestMission(EMissionUnique eMissionUnique);
+	void RequestMission(EMissionUnique MissionUnique);
 
 	void ClearCurrentMission();
 
-	class AMonsterSpawner* GetOrCreateMonsterSpawner();
-
-	// 결과창(성공/실패) 노출 및 디펜스 미니게임 종료 처리
+	// 결과창(성공/실패) 노출
 	void ShowMissionResultWidget(EMissionState NewState);
-
-	void StopDefenseMinigame();
-
-	UFUNCTION()
-	void HandleMissionSurvived();
 
 	UFUNCTION()
 	void HandleMissionResultConfirmed();
@@ -62,12 +46,16 @@ private:
 	// 디펜스 모드에서 보여지는 UI 위젯 Visible 여부를 설정
 	void SetDefenseHUDVisible(bool bVisible);
 
+	// 현재 컨트롤 중인 플레이어 캐릭터 / 컨트롤러 조회 헬퍼
+	class AMissionSystemCharacter* GetMissionCharacter() const;
+	class AMainPlayerController* GetMainPlayerController() const;
+
 public:
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 public:
-	
+
 	void RegisterMainMissionWidget(class UMainMissionWidget* Widget);
 
 	void RegisterMissionResultWidgets(class UMissionResultWidget* ResultWidget);
@@ -85,9 +73,9 @@ public:
 	// 플레이어 HP가 0이 됐을 때: 미션 실패 처리 후 실패 결과창 노출 (초기화는 Confirm 클릭 시 처리)
 	void HandlePlayerDefeated();
 
-	// 디펜스 미니게임 생존 타이머 남은 시간(초). 타이머가 없으면 음수 반환
+	// 현재 미션의 디펜스 미니게임 남은 시간(초). CurrentMission에 위임 — 미니게임이 없으면 음수 반환
 	float GetMissionRemainingTime() const;
 
-	FORCEINLINE float GetMissionTotalDuration() const { return MissionSuccessDuration; }
+	float GetMissionTotalDuration() const;
 
 };

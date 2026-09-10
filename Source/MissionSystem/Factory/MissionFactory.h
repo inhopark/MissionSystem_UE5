@@ -13,6 +13,6 @@ class MISSIONSYSTEM_API UMissionFactory : public UObject
 
 public:
 
-	UBaseMission* CreateMission(UObject* pOuter, EMissionUnique eMissionUnique);
+	UBaseMission* CreateMission(UObject* Outer, EMissionUnique MissionUnique);
 	
 };

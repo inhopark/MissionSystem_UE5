@@ -37,7 +37,7 @@ AMissionSystemCharacter::AMissionSystemCharacter()
 	// instead of recompiling to adjust them
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	GetCharacterMovement()->MaxWalkSpeed = NormalModeMoveSpeed;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
@@ -98,12 +98,14 @@ void AMissionSystemCharacter::SetPlayMode(ECharacterPlayMode NewMode)
 		{
 			CameraBoom->bUsePawnControlRotation = false;
 			GetCharacterMovement()->bOrientRotationToMovement = false;
+			GetCharacterMovement()->MaxWalkSpeed = DefenseModeMoveSpeed;
 			SetActorRotation(FRotator(0.0f, 0.0f, 0.0f));
 		}
 		else
 		{
 			CameraBoom->bUsePawnControlRotation = true;
 			GetCharacterMovement()->bOrientRotationToMovement = true;
+			GetCharacterMovement()->MaxWalkSpeed = NormalModeMoveSpeed;
 		}
 	}
 }
@@ -118,9 +120,9 @@ void AMissionSystemCharacter::ApplyDamage(float DamageAmount)
 	{
 		if (UGameInstance* GameInstance = GetGameInstance())
 		{
-			if (UMissionManager* pMissionManager = GameInstance->GetSubsystem<UMissionManager>())
+			if (UMissionManager* MissionManager = GameInstance->GetSubsystem<UMissionManager>())
 			{
-				pMissionManager->HandlePlayerDefeated();
+				MissionManager->HandlePlayerDefeated();
 			}
 		}
 	}

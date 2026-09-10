@@ -14,23 +14,23 @@ void ANPC::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (USphereComponent* pSphereComp = FindComponentByClass<USphereComponent>())
+	if (USphereComponent* SphereComponent = FindComponentByClass<USphereComponent>())
 	{
-		pSphereComp->OnComponentBeginOverlap.AddDynamic(this, &ANPC::OnUserCheckOverlapBegin);
-		pSphereComp->OnComponentEndOverlap.AddDynamic(this, &ANPC::OnUserCheckOverlapEnd);
+		SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ANPC::OnUserCheckOverlapBegin);
+		SphereComponent->OnComponentEndOverlap.AddDynamic(this, &ANPC::OnUserCheckOverlapEnd);
 	}
 }
 
 void ANPC::OnUserCheckOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (AMissionSystemCharacter* pUser = Cast<AMissionSystemCharacter>(OtherActor))
+	if (AMissionSystemCharacter* PlayerCharacter = Cast<AMissionSystemCharacter>(OtherActor))
 	{
 		// 미션 요청 UI 띄우는 로직.
-		if(GetGameInstance() != nullptr)
+		if (GetGameInstance() != nullptr)
 		{
-			if (UMissionManager* pMissionManager = GetGameInstance()->GetSubsystem<UMissionManager>())
+			if (UMissionManager* MissionManager = GetGameInstance()->GetSubsystem<UMissionManager>())
 			{
-				pMissionManager->ShowMainMissionWidget(MissionUnique, this);
+				MissionManager->ShowMainMissionWidget(MissionUnique, this);
 			}
 		}
 	}
@@ -38,14 +38,14 @@ void ANPC::OnUserCheckOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 
 void ANPC::OnUserCheckOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (AMissionSystemCharacter* pUser = Cast<AMissionSystemCharacter>(OtherActor))
+	if (AMissionSystemCharacter* PlayerCharacter = Cast<AMissionSystemCharacter>(OtherActor))
 	{
 		// 미션 요청 UI 제거하는 로직.
-		if(GetGameInstance())
+		if (GetGameInstance())
 		{
-			if (UMissionManager* pMissionManager = GetGameInstance()->GetSubsystem<UMissionManager>())
+			if (UMissionManager* MissionManager = GetGameInstance()->GetSubsystem<UMissionManager>())
 			{
-				pMissionManager->HideMainMissionWidget();
+				MissionManager->HideMainMissionWidget();
 			}
 		}
 	}

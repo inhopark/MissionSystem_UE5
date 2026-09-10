@@ -1,4 +1,5 @@
-﻿#include "BaseMission.h"
+#include "BaseMission.h"
+#include "Character/User/MissionSystemCharacter.h"
 
 UBaseMission::UBaseMission()
 {
@@ -6,7 +7,7 @@ UBaseMission::UBaseMission()
 
 void UBaseMission::Initialize()
 {
-	SetState(EMissionState::Ready);	
+	SetState(EMissionState::Ready);
 }
 
 void UBaseMission::SetState(EMissionState NewState)
@@ -40,10 +41,17 @@ void UBaseMission::EnterFailedState()
 {
 }
 
-void UBaseMission::AgreeMission()
+void UBaseMission::AgreeMission(AMissionSystemCharacter* Player)
 {
+	MissionPlayer = Player;
+
 	// 미션 진행 중으로 변경.
 	SetState(EMissionState::InProgress);
+}
+
+AMissionSystemCharacter* UBaseMission::GetMissionPlayer() const
+{
+	return MissionPlayer.Get();
 }
 
 void UBaseMission::DisagreeMission()

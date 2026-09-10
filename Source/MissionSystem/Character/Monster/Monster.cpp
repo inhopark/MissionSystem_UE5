@@ -1,4 +1,4 @@
-#include "Monster.h"
+﻿#include "Monster.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "UObject/ConstructorHelpers.h"
@@ -43,16 +43,46 @@ void AMonster::Tick(float DeltaTime)
 	DistanceTraveled += DeltaMove;
 	if (DistanceTraveled >= MaxTravelDistance)
 	{
-		Destroy();
+		// 플레이어를 지나쳐 화면 밖으로 벗어남 -> 풀로 반환
+		Deactivate();
 	}
 }
 
 void AMonster::OnCollisionSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (AMissionSystemCharacter* pUser = Cast<AMissionSystemCharacter>(OtherActor))
+	if (AMissionSystemCharacter* PlayerCharacter = Cast<AMissionSystemCharacter>(OtherActor))
 	{
-		pUser->ApplyDamage(DamageAmount);
+		PlayerCharacter->ApplyDamage(DamageAmount);
 
-		Destroy();
+		// 플레이어를 맞췄으니 풀로 반환
+		Deactivate();
 	}
+}
+
+void AMonster::ActivateAt(const FVector& SpawnLocation)
+{
+	SetActorLocation(SpawnLocation);
+	DistanceTraveled = 0.0f;
+	bIsActive = true;
+
+	SetActorHiddenInGame(false);
+	SetActorTickEnabled(true);
+	SetActorEnableCollision(true);
+}
+
+void AMonster::Deactivate()
+{
+	// 같은 프레임에 충돌 + 최대 이동거리 초과가 겹치는 등, 두 번 호출되어도
+	// 풀에 중복 반환되지 않도록 가드
+	if (bIsActive == false)
+	{
+		return;
+	}
+	bIsActive = false;
+
+	SetActorHiddenInGame(true);
+	SetActorTickEnabled(false);
+	SetActorEnableCollision(false);
+
+	OnDeactivated.Broadcast(this);
 }

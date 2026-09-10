@@ -1,12 +1,14 @@
-﻿#include "MissionFactory.h"
+#include "MissionFactory.h"
 #include "Mission/BaseMission.h"
+#include "Mission/MissionAct1Chapter1.h"
+#include "Mission/MissionAct1Chapter2.h"
 
-UBaseMission* UMissionFactory::CreateMission(UObject* pOuter, EMissionUnique eMissionUnique)
+UBaseMission* UMissionFactory::CreateMission(UObject* Outer, EMissionUnique MissionUnique)
 {
-	switch (eMissionUnique)
-	{	
-		case EMissionUnique::Act1Chapter1: return NewObject<UBaseMission>(pOuter);
-		case EMissionUnique::Act1Chapter2: return NewObject<UBaseMission>(pOuter);
+	switch (MissionUnique)
+	{
+		case EMissionUnique::Act1Chapter1: return NewObject<UMissionAct1Chapter1>(Outer);
+		case EMissionUnique::Act1Chapter2: return NewObject<UMissionAct1Chapter2>(Outer);
 	}
 
 	return nullptr;

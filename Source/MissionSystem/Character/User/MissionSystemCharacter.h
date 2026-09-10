@@ -66,6 +66,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Defense")
 	float DefenseCameraForwardOffset = 450.0f;
 
+	// 일반 3인칭 모드 좌우/전후 이동 속도
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayMode")
+	float NormalModeMoveSpeed = 500.0f;
+
+	// 디펜스 모드(쿼터뷰) 좌우 이동 속도 — 몬스터를 피해야 하므로 일반 모드보다 빠르게 설정
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayMode")
+	float DefenseModeMoveSpeed = 850.0f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HP")
 	float MaxHP = 100.0f;
 

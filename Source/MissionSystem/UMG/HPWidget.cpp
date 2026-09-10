@@ -8,11 +8,11 @@ void UHPWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (AMissionSystemCharacter* pUser = Cast<AMissionSystemCharacter>(UGameplayStatics::GetPlayerPawn(this, 0)))
+	if (AMissionSystemCharacter* PlayerCharacter = Cast<AMissionSystemCharacter>(UGameplayStatics::GetPlayerPawn(this, 0)))
 	{
-		pUser->OnHPChanged.AddDynamic(this, &UHPWidget::HandleHPChanged);
+		PlayerCharacter->OnHPChanged.AddDynamic(this, &UHPWidget::HandleHPChanged);
 
-		SetHP(pUser->GetCurrentHP(), pUser->GetMaxHP());
+		SetHP(PlayerCharacter->GetCurrentHP(), PlayerCharacter->GetMaxHP());
 
 		// 위젯이 새로 생성된 시점엔 보간 없이 바로 현재 값으로 표시
 		DisplayedPercent = TargetPercent;
@@ -27,7 +27,7 @@ void UHPWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	if (HPBar != nullptr && !FMath::IsNearlyEqual(DisplayedPercent, TargetPercent, KINDA_SMALL_NUMBER))
+	if (HPBar != nullptr && FMath::IsNearlyEqual(DisplayedPercent, TargetPercent, KINDA_SMALL_NUMBER) == false)
 	{
 		DisplayedPercent = FMath::FInterpTo(DisplayedPercent, TargetPercent, InDeltaTime, BarInterpSpeed);
 		HPBar->SetPercent(DisplayedPercent);

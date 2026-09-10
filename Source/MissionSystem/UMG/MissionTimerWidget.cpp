@@ -10,12 +10,12 @@ void UMissionTimerWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaT
 
 	if (UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(this))
 	{
-		if (UMissionManager* pMissionManager = GameInstance->GetSubsystem<UMissionManager>())
+		if (UMissionManager* MissionManager = GameInstance->GetSubsystem<UMissionManager>())
 		{
-			const float Remaining = pMissionManager->GetMissionRemainingTime();
+			const float Remaining = MissionManager->GetMissionRemainingTime();
 			if (Remaining >= 0.0f)
 			{
-				SetRemainingTime(Remaining, pMissionManager->GetMissionTotalDuration());
+				SetRemainingTime(Remaining, MissionManager->GetMissionTotalDuration());
 			}
 		}
 	}
