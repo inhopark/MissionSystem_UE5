@@ -1,5 +1,6 @@
 #include "MainPlayerController.h"
 #include "Manager/MissionManager.h"
+#include "Manager/MissionAutoCycleController.h"
 #include "UMG/MainMissionWidget.h"
 #include "UMG/MissionResultWidget.h"
 #include "UMG/HPWidget.h"
@@ -35,5 +36,13 @@ void AMainPlayerController::SetDefenseHUDVisible(bool bVisible)
 	if (MissionTimerWidgetInstance != nullptr)
 	{
 		MissionTimerWidgetInstance->SetVisibility(TargetVisibility);
+	}
+}
+
+void AMainPlayerController::ToggleAutoCycleMode()
+{
+	if (UMissionAutoCycleController* AutoCycleController = GetGameInstance()->GetSubsystem<UMissionAutoCycleController>())
+	{
+		AutoCycleController->ToggleAutoCycleMode();
 	}
 }

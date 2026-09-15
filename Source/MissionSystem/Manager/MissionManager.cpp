@@ -203,6 +203,8 @@ void UMissionManager::OnMissionStateChanged(EMissionState NewState)
 			ShowMissionResultWidget(NewState);
 			break;
 	}
+
+	OnAnyMissionStateChanged.Broadcast(NewState);
 }
 
 void UMissionManager::ShowMissionResultWidget(EMissionState NewState)

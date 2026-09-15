@@ -6,13 +6,18 @@ void UDefenseMinigameMission::EnterInProgressState()
 {
 	Super::EnterInProgressState();
 
+	GetOrCreateDefenseMinigameController()->Start(GetMissionPlayer());
+}
+
+UDefenseMinigameController* UDefenseMinigameMission::GetOrCreateDefenseMinigameController()
+{
 	if (DefenseMinigame == nullptr)
 	{
 		DefenseMinigame = NewObject<UDefenseMinigameController>(this);
 		DefenseMinigame->OnSurvived.AddDynamic(this, &UDefenseMinigameMission::HandleMinigameSurvived);
 	}
 
-	DefenseMinigame->Start(GetMissionPlayer());
+	return DefenseMinigame;
 }
 
 void UDefenseMinigameMission::EnterSucceededState()

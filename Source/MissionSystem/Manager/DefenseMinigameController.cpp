@@ -20,6 +20,14 @@ void UDefenseMinigameController::Start(AMissionSystemCharacter* Player)
 	}
 }
 
+void UDefenseMinigameController::SetSurvivalDurationOverride(float NewDuration)
+{
+	if (NewDuration > 0.0f)
+	{
+		SurvivalDuration = NewDuration;
+	}
+}
+
 void UDefenseMinigameController::Stop()
 {
 	if (MonsterSpawner != nullptr)

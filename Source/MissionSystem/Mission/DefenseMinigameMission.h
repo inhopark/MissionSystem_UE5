@@ -33,4 +33,9 @@ public:
 	virtual float GetMinigameRemainingTime() const override;
 
 	virtual float GetMinigameTotalDuration() const override;
+
+	// DefenseMinigame이 있으면 그대로, 없으면 새로 생성해서 반환 (Start()는 호출하지 않음).
+	// public인 이유: 자동 사이클 모드가 Agree 처리(EnterInProgressState -> Start()) 전에
+	// 생존 시간을 미리 단축 설정할 수 있도록 컨트롤러 인스턴스에 먼저 접근해야 하기 때문
+	class UDefenseMinigameController* GetOrCreateDefenseMinigameController();
 };

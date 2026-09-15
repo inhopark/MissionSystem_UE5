@@ -42,6 +42,11 @@ NPC 기반 미션(퀘스트) 시스템과, 미션 수락 시 진입하는 쿼터
 5. `OnMissionStateChanged`가 `Succeeded`/`Failed`를 받으면 `SetDefenseHUDVisible(false)` + `ShowMissionResultWidget(state)`로 결과창(`UMissionResultWidget`, `WBP_MainMissionResult`) 노출.
 6. 결과창의 Confirm 버튼 → `HandleMissionResultConfirmed` → HP 회복(`ResetHP`) → `ClearCurrentMission()`: **NPC를 다시 활성화하기 전에** 플레이어를 `AGameModeBase::FindPlayerStart`로 찾은 `PlayerStart` 위치로 텔레포트(같은 자리에서 NPC와 즉시 재오버랩하는 버그 방지) → `SetPlayMode(Normal)` → NPC 재표시/충돌 복원.
 
+### 자동 테스트 사이클 (`UMissionAutoCycleController`)
+
+- **`UMissionAutoCycleController`** (`Manager/`) — `UGameInstanceSubsystem` + `FTickableGameObject`. 미션 전체 흐름(NPC 접근 → Agree → 디펜스 미니게임 → 결과 Confirm)을 사람 개입 없이 자동으로 한 번 진행시키는 컨트롤러로, 자동화된 테스트 러너가 없는 이 프로젝트에서 전체 플로우가 정상 동작하는지 반복 수동 플레이 없이 검증하기 위한 용도입니다. 콘솔 명령 `ToggleAutoCycleMode`(`AMainPlayerController`가 받아 위임 — `UGameInstanceSubsystem`은 콘솔 Exec 디스패치 체인에 포함되지 않아 자기 자신은 `UFUNCTION(Exec)`을 가질 수 없음)로 켜면, 가장 가까운 `ANPC`에게 자동으로 이동해 오버랩을 유발하고, 이후 `MissionManager::OnAnyMissionStateChanged`를 구독해 `Ready`/`Succeeded`/`Failed` 시점마다 `MissionManager`의 public 함수(`HandleMissionButtonAction`, `HandleMissionResultConfirmed`)를 사람이 버튼을 누른 것과 동일하게 호출합니다. 디펜스 미니게임 구간은 생존 시간만 단축한 채 실제로 재생되며 좌우 회피 이동도 함께 시뮬레이션합니다. 한 사이클이 끝나면 자동으로 꺼짐.
+- **설계 원칙**: `UBaseMission`/`UDefenseMinigameMission`과 각 UMG 위젯 클래스는 이 모드의 존재를 전혀 모름 — 오케스트레이션 로직은 전부 `UMissionAutoCycleController`에만 있고, 기존 클래스에는 auto 모드를 인지하지 않는 중립적 public 훅(`UMissionManager::GetCurrentMission()`/`OnAnyMissionStateChanged`, `UDefenseMinigameMission::GetOrCreateDefenseMinigameController()`, `UDefenseMinigameController::SetSurvivalDurationOverride()`)만 추가했습니다. 새 미션별 자동화 동작이 필요해지더라도 `UBaseMission`/`UDefenseMinigameMission`에 분기를 넣지 말고 `UMissionAutoCycleController` 쪽에서 처리할 것.
+
 ### UI 위젯과 `AMainPlayerController`
 
 `AMainPlayerController`가 모든 UMG 위젯 인스턴스(`MainMissionWidget`, `MissionResultWidget`, `HPWidget`, `MissionTimerWidget`)를 `BeginPlay`에서 생성·`AddToViewport()`하고, `UMissionManager`가 각 위젯의 delegate(`OnMissionButtonAction`, `OnConfirmed`)를 구독해 상태를 동기화합니다.
@@ -79,4 +84,4 @@ NPC 기반 미션(퀘스트) 시스템과, 미션 수락 시 진입하는 쿼터
 
 - `MissionDefine.h`는 공용 열거형(`EMissionUnique`, `EMissionState`, `EMissionButtonAction`)과 지역화된 `FText` UI 문자열(`LOCTEXT`)을 한곳에 모아두며, 미션 클래스들과 위젯에서 함께 사용합니다.
 - 각 위젯의 `BindWidget` 자식 바인딩(`MissionTitleText`, `LeftButton`, `HPBar`/`HPText`, `TimerBar`/`TimerText` 등)은 `Content/UMG/` 아래 대응되는 WBP 에셋(`WBP_MainMission`, `WBP_MainMissionResult`, `WBP_HP`, `WBP_Timer`)의 위젯 이름과 반드시 일치해야 합니다.
-- 캐릭터 메시/애니메이션은 UE5 기본 마네킹 중 **Quinn**만 사용합니다(`SKM_Quinn`, `ABP_Quinn`) — Manny 계열(`SK_Mannequin`은 Quinn이 스켈레톤을 공유하므로 예외)은 실제로 참조되지 않는 자산이니, 콘텐츠를 정리할 때 어떤 애셋이 어떤 애니메이션 블루프린트에서 참조되는지 먼저 확인 없이 지우지 말 것(`ABP_Manny`를 지웠다가 `ABP_Quinn` 로드 실패를 유발한 전례 있음 — Quinn의 `ABP_Quinn`이 사용하지 않는 노드로 `ABP_Manny`를 하드 레퍼런스하고 있었음).
+- 캐릭터 메시/애니메이션은 UE5 기본 마네킹 중 **Quinn**만 실제 캐릭터로 사용합니다(`SKM_Quinn`, `ABP_Quinn`). `ABP_Quinn`은 **`ABP_Manny`의 Child Anim Blueprint**(부모 클래스)로, AnimGraph 로직 자체는 `ABP_Manny`에 있고 `ABP_Quinn`은 Asset Override Editor로 블렌드스페이스/시퀀스만 Quinn 전용 자산으로 교체하는 구조입니다 — `ABP_Manny`에 대한 참조는 상속 관계상 필수이며 지우면 `ABP_Quinn`이 깨지므로, Manny 계열 애니메이션 에셋(`SK_Mannequin`은 스켈레톤 공유라 별개)을 정리할 때는 삭제 전에 `ABP_Quinn`의 Asset Override 설정을 먼저 확인할 것.
