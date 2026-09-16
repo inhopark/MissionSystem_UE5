@@ -80,6 +80,18 @@ NPC 기반 미션(퀘스트) 시스템과, 미션 수락 시 진입하는 쿼터
 3. `UMissionFactory::CreateMission`에 케이스 추가해 새로 만든 클래스를 반환.
 4. 새 미션을 제공할 `ANPC`(블루프린트 또는 C++ 기본값)의 `MissionUnique` 프로퍼티에 지정.
 
+## 이력서/포트폴리오 PDF 생성
+
+저장소 루트의 `자기소개서_박인호.pdf`, `포트폴리오_박인호.pdf`, `경력기술서_박인호.pdf`는 원본 문서가 아니라 **HTML을 헤드리스 Chrome/Edge로 인쇄해 만든 PDF**입니다(`grep -a -o "Producer\|Creator" 자기소개서_박인호.pdf`로 확인하면 `Producer (Skia/PDF m153)` / `Creator (Mozilla/5.0 ...)`가 나옴 — 즉 python-docx/pandoc 등이 아니라 브라우저 인쇄 파이프라인 산출물). 이 중 하나를 수정해 달라는 요청을 받으면 항상 다음 절차를 따를 것:
+
+1. 원본과 동일한 톤으로 HTML 레플리카를 작성한다 — 어두운 타이틀 텍스트, 초록색(`#16794f` 계열) 포인트 컬러, 초록 사각형 안에 숫자가 들어간 섹션 배지(`1`, `2`, …), 옅은 초록 배경의 정보 카드(`프로젝트 유형`/`클라이언트`/`서버`/`DB` 등), 초록 필(pill) 형태의 소제목 태그, `▸` 불릿 목록.
+2. 로컬 헤드리스 브라우저로 그 HTML을 실제 PDF로 렌더링한다:
+   `"C:\Program Files\Google\Chrome\Application\chrome.exe" --headless=new --disable-gpu --no-pdf-header-footer --print-to-pdf="<출력 경로>.pdf" "file:///<html 절대경로, 슬래시 표기>"`
+   — `file:///C:/...` 형태(트리플 슬래시 + 슬래시 구분)여야 하며, Git Bash 스타일 `/c/...` 경로를 그대로 넘기면 네이티브 Windows Chrome이 인식하지 못해 `ERR_FILE_NOT_FOUND`가 남.
+3. 결과물은 **원본을 덮어쓰지 않고** 같은 폴더에 `_draft` 접미사를 붙인 새 파일로 저장한다(예: `자기소개서_박인호_draft.pdf`). 사용자가 내용을 확인한 뒤 원본 교체 여부를 직접 결정하게 함.
+4. `_draft` 파일은 사용자가 명시적으로 요청하기 전까지 git에 add/commit하지 않는다.
+5. **페이지 중간에 빈 공간이 크게 남지 않도록 페이지 나눔(break) CSS를 최소한으로만 건다.** `.company-block`/`.project`처럼 페이지 하나보다 커질 수 있는 큰 컨테이너에는 `page-break-inside: avoid`(또는 `break-inside: avoid`)를 걸지 말 것 — 블록이 남은 공간에 안 들어가면 통째로 다음 페이지로 밀려나면서 이전 페이지에 큰 여백이 생기는 원인이 됨(실제로 이 문제로 `자기소개서_박인호.pdf`가 6쪽, `경력기술서_박인호.pdf`가 3쪽까지 늘어졌던 전례가 있음 → 각각 4쪽/2쪽으로 정정됨). 대신 소제목이 페이지 맨 아래 혼자 남는 것만 막도록 제목류(`.tag`, `.project-title`, `.sub-title`, `.company-row`, `h3` 등)에 `break-after: avoid`를, 불릿 한 줄이나 정보 카드처럼 원래 작은 단위(`ul.bullets li`, `.info-card`)에만 `break-inside: avoid`를 걸어 본문은 페이지 경계를 넘어 자연스럽게 이어지도록 한다.
+
 ## 참고 사항
 
 - `MissionDefine.h`는 공용 열거형(`EMissionUnique`, `EMissionState`, `EMissionButtonAction`)과 지역화된 `FText` UI 문자열(`LOCTEXT`)을 한곳에 모아두며, 미션 클래스들과 위젯에서 함께 사용합니다.
