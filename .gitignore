@@ -38,3 +38,7 @@ Saved/
 *.exe
 *.dll
 *.patch_*
+
+# 개인 문서 (private 저장소 inhopark/Resume 으로 이동)
+경력기술서_박인호*.pdf
+자기소개서_박인호*.pdf
